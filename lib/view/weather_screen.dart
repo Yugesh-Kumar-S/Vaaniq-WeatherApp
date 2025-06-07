@@ -18,10 +18,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
   WeatherModel? _weatherModel;
 
   _fetchWeather() async {
-    String cityName = await _weatherService.getCurrentCity();
-
     try {
-      final weather = await _weatherService.getWeather(cityName);
+      final weather = await _weatherService.getWeatherForCurrentLocation();
       setState(() {
         _weatherModel = weather;
       });
@@ -123,7 +121,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              _weatherModel?.cityName ?? 'Loading city info...',
+              _weatherModel?.locationName ?? 'Loading city info...',
               style: GoogleFonts.poppins(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
@@ -158,6 +156,19 @@ class _WeatherScreenState extends State<WeatherScreen> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            _weatherModel = null;
+          });
+          _fetchWeather();
+        },
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+        backgroundColor: textColor,
+        elevation: 10,
+        child: Icon(Icons.refresh, color: backgroundColor),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

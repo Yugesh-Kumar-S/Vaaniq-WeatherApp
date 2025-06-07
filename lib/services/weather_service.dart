@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:weather_app/models/weather_model.dart';
@@ -11,10 +9,10 @@ class WeatherService {
 
   WeatherService({required this.apiKey});
 
-  Future<WeatherModel> getWeather(String cityName) async {
+  Future<WeatherModel> getWeatherByLocation(double lat, double lon) async {
     final response = await http.get(
       Uri.parse(
-        'http://api.openweathermap.org/data/2.5/weather?q=$cityName&appid=$apiKey&units=metric',
+        'http://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric',
       ),
     );
 
@@ -25,7 +23,7 @@ class WeatherService {
     }
   }
 
-  Future<String> getCurrentCity() async {
+  Future<WeatherModel> getWeatherForCurrentLocation() async {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -35,13 +33,6 @@ class WeatherService {
       desiredAccuracy: LocationAccuracy.high,
     );
 
-    List<Placemark> placemarks = await placemarkFromCoordinates(
-      position.latitude,
-      position.longitude,
-    );
-
-    String? city = placemarks[0].locality;
-
-    return city ?? '';
+    return await getWeatherByLocation(position.latitude, position.longitude);
   }
 }

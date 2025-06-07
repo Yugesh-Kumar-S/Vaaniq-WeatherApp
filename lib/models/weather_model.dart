@@ -1,5 +1,5 @@
 class WeatherModel {
-  final String cityName;
+  final String locationName;
   final double temperature;
   final String mainCondition;
   final int timestamp;
@@ -7,7 +7,7 @@ class WeatherModel {
   final int sunset;
 
   WeatherModel({
-    required this.cityName,
+    required this.locationName,
     required this.temperature,
     required this.mainCondition,
     required this.timestamp,
@@ -17,7 +17,7 @@ class WeatherModel {
 
   factory WeatherModel.fromJson(Map<String, dynamic> json) {
     return WeatherModel(
-      cityName: json['name'],
+      locationName: json['name'],
       temperature: json['main']['temp'].toDouble(),
       mainCondition: json['weather'][0]['main'],
       timestamp: json['dt'],
