@@ -150,7 +150,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 fontStyle: FontStyle.italic,
-                color: Colors.black,
+                color: backgroundColor==Colors.white ? Colors.black: Colors.white,
               ),
             ),
           ],
