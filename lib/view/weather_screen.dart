@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:lottie/lottie.dart';
-import 'package:weather_app/models/weather_model.dart';
-import 'package:weather_app/services/weather_service.dart';
+import 'package:provider/provider.dart';
+import 'package:weather_app/providers/weather_provider.dart';
+import 'package:weather_app/utils/weather_utils.dart';
+import 'package:weather_app/widgets/weather_card.dart';
+import 'package:weather_app/widgets/loading_widget.dart';
+import 'package:weather_app/widgets/error_widget.dart' as custom;
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({super.key});
@@ -12,163 +14,105 @@ class WeatherScreen extends StatefulWidget {
 }
 
 class _WeatherScreenState extends State<WeatherScreen> {
-  final _weatherService = WeatherService(
-    apiKey: '0688bc07ec45a6f87fee3740d8ed6f34',
-  );
-  WeatherModel? _weatherModel;
-
-  _fetchWeather() async {
-    try {
-      final weather = await _weatherService.getWeatherForCurrentLocation();
-      setState(() {
-        _weatherModel = weather;
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  String getWeatherAnimation(String? mainCondition, Color backgroundColor) {
-    if (mainCondition == null) return 'assets/sunny-day.json';
-    switch (mainCondition) {
-      case 'Squall':
-      case 'Tornado':
-        return 'assets/windy.json';
-      case 'Clouds':
-      case 'Mist':
-      case 'Fog':
-      case 'Ash':
-      case 'Smoke':
-      case 'Haze':
-        if (backgroundColor == Colors.white) {
-          return 'assets/partlycloud-day.json';
-        } else {
-          return 'assets/partlycloud-night.json';
-        }
-      case 'Clear':
-        if (backgroundColor == Colors.white) {
-          return 'assets/sunny-day.json';
-        } else {
-          return 'assets/night-clear.json';
-        }
-      case 'Rain':
-      case 'Thunderstorm':
-        return 'assets/thunderstrom-rain.json';
-
-      case 'Drizzle':
-        if (backgroundColor == Colors.white) {
-          return 'assets/day-rain.json';
-        } else {
-          return 'assets/night-rain.json';
-        }
-      default:
-        if (backgroundColor == Colors.white) {
-          return 'assets/sunny-day.json';
-        } else {
-          return 'assets/night-clear.json';
-        }
-    }
-  }
-
-  bool isDayTime(int currentTime, int sunrise, int sunset) {
-    return currentTime >= sunrise && currentTime < sunset;
-  }
-
   @override
   void initState() {
     super.initState();
-    _fetchWeather();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<WeatherProvider>().fetchCurrentLocationWeather();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_weatherModel == null) {
-      return Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Lottie.asset('assets/loading.json', width: 200),
-              const SizedBox(height: 20),
-              const Text('Fetching weather...', style: TextStyle(fontSize: 18)),
-            ],
+    return Consumer<WeatherProvider>(
+      builder: (context, weatherProvider, child) {
+        return Scaffold(
+          backgroundColor: _getBackgroundColor(weatherProvider),
+          body: _buildBody(weatherProvider),
+          floatingActionButton: _buildFloatingActionButton(weatherProvider),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
+        );
+      },
+    );
+  }
+
+  Widget _buildBody(WeatherProvider weatherProvider) {
+    if (weatherProvider.isLoading) {
+      return const LoadingWidget(
+        message: 'Fetching weather...',
+        showAnimation: true,
+      );
+    }
+
+    if (weatherProvider.errorMessage != null) {
+      return custom.ErrorWidget(
+        message: weatherProvider.errorMessage!,
+        onRetry: () {
+          weatherProvider.clearError();
+          weatherProvider.fetchCurrentLocationWeather();
+        },
+      );
+    }
+
+    if (weatherProvider.currentWeather != null) {
+      return Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: WeatherCard(
+              weatherModel: weatherProvider.currentWeather!,
+              showAnimation: true,
+              isCompact: false,
+            ),
           ),
         ),
       );
     }
 
-    Color backgroundColor =
-        isDayTime(
-              _weatherModel!.timestamp,
-              _weatherModel!.sunrise,
-              _weatherModel!.sunset,
-            )
-            ? Colors.white
-            : Colors.grey[800]!;
-    Color textColor =
-        isDayTime(
-              _weatherModel!.timestamp,
-              _weatherModel!.sunrise,
-              _weatherModel!.sunset,
-            )
-            ? Colors.grey[700]!
-            : Colors.white;
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _weatherModel?.locationName ?? 'Loading city info...',
-              style: GoogleFonts.poppins(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
-            ),
-            Lottie.asset(
-              getWeatherAnimation(
-                _weatherModel?.mainCondition,
-                backgroundColor,
-              ),
-            ),
-            Text(
-              '${_weatherModel?.temperature.round() ?? 'loading '}°C',
-              style: GoogleFonts.poppins(
-                fontSize: 30,
-                fontWeight: FontWeight.w600,
-                color: textColor,
-                letterSpacing: 2,
-              ),
-            ),
-            SizedBox(height: 40),
-            Text(
-              _weatherModel?.mainCondition ?? "",
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                fontStyle: FontStyle.italic,
-                color: backgroundColor==Colors.white ? Colors.black: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            _weatherModel = null;
-          });
-          _fetchWeather();
-        },
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        backgroundColor: textColor,
-        elevation: 10,
-        child: Icon(Icons.refresh, color: backgroundColor),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    return const LoadingWidget(
+      message: 'Loading weather data...',
+      showAnimation: true,
     );
+  }
+
+  Widget _buildFloatingActionButton(WeatherProvider weatherProvider) {
+    final isDayTime =
+        weatherProvider.currentWeather != null
+            ? WeatherUtils.isDayTime(
+              weatherProvider.currentWeather!.timestamp,
+              weatherProvider.currentWeather!.sunrise,
+              weatherProvider.currentWeather!.sunset,
+            )
+            : true;
+
+    final theme = WeatherUtils.getWeatherTheme(isDayTime);
+    final textColor = theme.textTheme.headlineLarge!.color!;
+
+    return FloatingActionButton(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+      onPressed:
+          weatherProvider.isLoading
+              ? null
+              : () {
+                weatherProvider.refreshCurrentWeather();
+              },
+      backgroundColor: textColor,
+      child: Icon(Icons.refresh, color: Colors.deepOrange),
+    );
+  }
+
+  Color _getBackgroundColor(WeatherProvider weatherProvider) {
+    if (weatherProvider.currentWeather == null) {
+      return Colors.white;
+    }
+
+    final isDayTime = WeatherUtils.isDayTime(
+      weatherProvider.currentWeather!.timestamp,
+      weatherProvider.currentWeather!.sunrise,
+      weatherProvider.currentWeather!.sunset,
+    );
+
+    return WeatherUtils.getWeatherTheme(isDayTime).scaffoldBackgroundColor;
   }
 }

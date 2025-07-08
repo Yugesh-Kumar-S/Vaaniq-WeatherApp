@@ -4,35 +4,103 @@ import 'package:http/http.dart' as http;
 import 'package:weather_app/models/weather_model.dart';
 
 class WeatherService {
-  static const baseUrl = 'http://api.openweathermap.org/data/2.5/weather';
-  final String apiKey;
+  static const String _baseUrl =
+      'https://api.openweathermap.org/data/2.5/weather';
+  final String _apiKey;
 
-  WeatherService({required this.apiKey});
+  WeatherService({required String apiKey}) : _apiKey = apiKey;
 
   Future<WeatherModel> getWeatherByLocation(double lat, double lon) async {
-    final response = await http.get(
-      Uri.parse(
-        'http://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric',
-      ),
-    );
+    try {
+      final uri = Uri.parse(
+        '$_baseUrl?lat=$lat&lon=$lon&appid=$_apiKey&units=metric',
+      );
+      final response = await http.get(uri);
 
-    if (response.statusCode == 200) {
-      return WeatherModel.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load weather data');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return WeatherModel.fromJson(data);
+      } else {
+        throw WeatherException(
+          'Failed to load weather data: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      if (e is WeatherException) rethrow;
+      throw WeatherException('Network error: ${e.toString()}');
     }
   }
 
   Future<WeatherModel> getWeatherForCurrentLocation() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+    try {
+      final position = await _getCurrentPosition();
+      return await getWeatherByLocation(position.latitude, position.longitude);
+    } catch (e) {
+      if (e is WeatherException) rethrow;
+      throw WeatherException('Location error: ${e.toString()}');
+    }
+  }
+
+  Future<WeatherModel> getWeatherForCity(String cityName) async {
+    try {
+      final uri = Uri.parse(
+        '$_baseUrl?q=$cityName&appid=$_apiKey&units=metric',
+      );
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return WeatherModel.fromJson(data);
+      } else if (response.statusCode == 404) {
+        throw WeatherException('City not found: $cityName');
+      } else {
+        throw WeatherException(
+          'Failed to fetch weather data: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      if (e is WeatherException) rethrow;
+      throw WeatherException('Network error: ${e.toString()}');
+    }
+  }
+
+  Future<Position> _getCurrentPosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw WeatherException('Location services are disabled');
     }
 
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        throw WeatherException('Location permissions are denied');
+      }
+    }
 
-    return await getWeatherByLocation(position.latitude, position.longitude);
+    if (permission == LocationPermission.deniedForever) {
+      throw WeatherException('Location permissions are permanently denied');
+    }
+
+    try {
+      return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
+      );
+    } catch (e) {
+      throw WeatherException('Failed to get current location: ${e.toString()}');
+    }
   }
+}
+
+class WeatherException implements Exception {
+  final String message;
+
+  WeatherException(this.message);
+
+  @override
+  String toString() => message;
 }
