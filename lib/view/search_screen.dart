@@ -6,6 +6,8 @@ import 'package:weather_app/widgets/weather_card.dart';
 import 'package:weather_app/widgets/forecast_widget.dart';
 import 'package:weather_app/widgets/error_widget.dart' as custom;
 
+import '../widgets/loading_widget.dart';
+
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -36,6 +38,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     padding: const EdgeInsets.all(16.0),
                     child: SearchBarWidget(
                       onSearch: (cityName) {
+                        weatherProvider.clearSearchedWeather();
                         weatherProvider.fetchWeatherByCity(cityName);
                       },
                       enabled: !weatherProvider.isLoading,
@@ -64,6 +67,10 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildWeatherInfo(WeatherProvider weatherProvider) {
+    if (weatherProvider.isLoading) {
+      return const LoadingWidget(showAnimation: true);
+    }
+
     if (weatherProvider.errorMessage != null &&
         weatherProvider.errorMessage!.contains('Failed to fetch weather for')) {
       return Padding(
