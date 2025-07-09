@@ -23,6 +23,7 @@ class LoadingWidget extends StatelessWidget {
             message ?? 'Loading...',
             style: GoogleFonts.poppins(
               fontSize: 18,
+              color: Colors.black,
               fontWeight: FontWeight.w500,
             ),
           ),

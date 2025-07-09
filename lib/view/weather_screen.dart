@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_app/providers/weather_provider.dart';
 import 'package:weather_app/utils/weather_utils.dart';
@@ -46,13 +47,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
     }
 
     if (weatherProvider.errorMessage != null) {
-      return custom.ErrorWidget(
-        message: weatherProvider.errorMessage!,
-        onRetry: () {
-          weatherProvider.clearError();
-          weatherProvider.fetchCurrentLocationWeather();
-        },
-      );
+      return custom.ErrorWidget(message: weatherProvider.errorMessage!);
     }
 
     if (weatherProvider.currentWeather != null) {
@@ -94,11 +89,25 @@ class _WeatherScreenState extends State<WeatherScreen> {
       onPressed:
           weatherProvider.isLoading
               ? null
-              : () {
+              : () async {
+                bool serviceEnabled =
+                    await Geolocator.isLocationServiceEnabled();
+                LocationPermission permission =
+                    await Geolocator.checkPermission();
+
+                if (!serviceEnabled ||
+                    permission == LocationPermission.denied ||
+                    permission == LocationPermission.deniedForever) {
+                  // Optionally, open location settings
+                  await Geolocator.openLocationSettings();
+                  return;
+                }
+
+                // If location is enabled and permissions are granted
                 weatherProvider.refreshCurrentWeather();
               },
       backgroundColor: textColor,
-      child: Icon(Icons.refresh, color: Colors.deepOrange),
+      child: const Icon(Icons.refresh, color: Colors.deepOrange),
     );
   }
 

@@ -47,7 +47,7 @@ class WeatherUtils {
   static final ThemeData _dayTheme = ThemeData(
     brightness: Brightness.light,
     primarySwatch: Colors.blue,
-    scaffoldBackgroundColor: Colors.white,
+    scaffoldBackgroundColor: Colors.lightBlueAccent[100],
     textTheme: TextTheme(
       headlineLarge: TextStyle(color: Colors.grey[700]),
       headlineMedium: TextStyle(color: Colors.grey[700]),
@@ -64,7 +64,7 @@ class WeatherUtils {
   static final ThemeData _nightTheme = ThemeData(
     brightness: Brightness.dark,
     primarySwatch: Colors.blue,
-    scaffoldBackgroundColor: Colors.grey[800],
+    scaffoldBackgroundColor: Colors.blue[900],
     textTheme: const TextTheme(
       headlineLarge: TextStyle(color: Colors.white),
       headlineMedium: TextStyle(color: Colors.white),

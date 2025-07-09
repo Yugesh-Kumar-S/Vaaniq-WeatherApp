@@ -3,54 +3,75 @@ import 'package:google_fonts/google_fonts.dart';
 
 class ErrorWidget extends StatelessWidget {
   final String message;
-  final VoidCallback? onRetry;
 
-  const ErrorWidget({super.key, required this.message, this.onRetry});
+  const ErrorWidget({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red[400]),
-            const SizedBox(height: 16),
-            Text(
-              'Oops! Something went wrong',
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.red[600],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenHeight = constraints.maxHeight;
+        final screenWidth = constraints.maxWidth;
+
+        final iconSize = (screenHeight * 0.08).clamp(48.0, 80.0);
+        final titleFontSize = (screenWidth * 0.045).clamp(16.0, 24.0);
+        final messageFontSize = (screenWidth * 0.035).clamp(14.0, 18.0);
+
+        return Center(
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: screenHeight * 0.3,
+                maxWidth: screenWidth * 0.9,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[600]),
-              textAlign: TextAlign.center,
-            ),
-            if (onRetry != null) ...[
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
+              child: Padding(
+                padding: EdgeInsets.all(screenWidth * 0.04),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: iconSize,
+                      color: Colors.deepOrange,
+                    ),
+                    SizedBox(height: screenHeight * 0.02),
+
+                    Flexible(
+                      child: Text(
+                        'Oops! Something went wrong',
+                        style: GoogleFonts.poppins(
+                          fontSize: titleFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepOrange,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+
+                    SizedBox(height: screenHeight * 0.01),
+
+                    Flexible(
+                      child: Text(
+                        message,
+                        style: GoogleFonts.poppins(
+                          fontSize: messageFontSize,
+                          color: Colors.grey[600],
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ],
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

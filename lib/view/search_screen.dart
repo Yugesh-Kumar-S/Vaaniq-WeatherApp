@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:weather_app/providers/weather_provider.dart';
 import 'package:weather_app/widgets/search_bar_widget.dart';
 import 'package:weather_app/widgets/weather_card.dart';
+import 'package:weather_app/widgets/forecast_widget.dart';
 import 'package:weather_app/widgets/error_widget.dart' as custom;
 
 class SearchScreen extends StatefulWidget {
@@ -28,23 +29,33 @@ class _SearchScreenState extends State<SearchScreen> {
         return SafeArea(
           child: Scaffold(
             resizeToAvoidBottomInset: true,
-            body: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SearchBarWidget(
-                    onSearch: (cityName) {
-                      weatherProvider.fetchWeatherByCity(cityName);
-                    },
-                    enabled: !weatherProvider.isLoading,
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: SearchBarWidget(
+                      onSearch: (cityName) {
+                        weatherProvider.fetchWeatherByCity(cityName);
+                      },
+                      enabled: !weatherProvider.isLoading,
+                    ),
                   ),
-                ),
 
-                SizedBox(
-                  height: 200,
-                  child: _buildWeatherInfo(weatherProvider),
-                ),
-              ],
+                  SizedBox(
+                    height: 200,
+                    child: _buildWeatherInfo(weatherProvider),
+                  ),
+
+                  if (weatherProvider.searchedWeather != null) ...[
+                    const SizedBox(height: 16),
+                    ForecastWidget(
+                      cityName: weatherProvider.searchedWeather!.locationName,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ],
+              ),
             ),
           ),
         );
@@ -53,15 +64,11 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildWeatherInfo(WeatherProvider weatherProvider) {
-    if (weatherProvider.errorMessage != null) {
+    if (weatherProvider.errorMessage != null &&
+        weatherProvider.errorMessage!.contains('Failed to fetch weather for')) {
       return Padding(
         padding: const EdgeInsets.all(16.0),
-        child: custom.ErrorWidget(
-          message: weatherProvider.errorMessage!,
-          onRetry: () {
-            weatherProvider.clearError();
-          },
-        ),
+        child: custom.ErrorWidget(message: weatherProvider.errorMessage!),
       );
     }
 
