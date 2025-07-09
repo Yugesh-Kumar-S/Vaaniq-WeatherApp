@@ -1,7 +1,8 @@
 # 🌤️ Vaaniq – Cross‑Platform Weather App
 
-#### Video Demo:
-`<Insert YouTube link here>`
+### 📽️ Video Demo  
+- 📱 [Watch Mobile Demo](https://youtube.com/shorts/Ftg8XbOfd8M)
+- 🖥️ [Watch Windows Demo](https://youtu.be/XMABZrYYKbs)
 
 ---
 
