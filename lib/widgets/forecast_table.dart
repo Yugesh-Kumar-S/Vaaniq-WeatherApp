@@ -5,7 +5,7 @@ import 'package:weather_app/widgets/forecast_row.dart';
 class ForecastTable extends StatelessWidget {
   final ForecastModel forecast;
 
-  const ForecastTable({Key? key, required this.forecast}) : super(key: key);
+  const ForecastTable({super.key, required this.forecast});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class ForecastTable extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha(25),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

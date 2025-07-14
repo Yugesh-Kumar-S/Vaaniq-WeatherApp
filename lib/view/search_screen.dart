@@ -97,7 +97,7 @@ class _SearchScreenState extends State<SearchScreen> {
           'Search for a city to get weather information',
           style: TextStyle(
             fontSize: 16,
-            color: Colors.grey,
+            color: Colors.deepOrange,
             fontWeight: FontWeight.bold,
           ),
           textAlign: TextAlign.center,

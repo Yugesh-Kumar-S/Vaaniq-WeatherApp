@@ -9,11 +9,11 @@ class ForecastWidget extends StatefulWidget {
   final double? longitude;
 
   const ForecastWidget({
-    Key? key,
+    super.key,
     required this.cityName,
     this.latitude,
     this.longitude,
-  }) : super(key: key);
+  });
 
   @override
   State<ForecastWidget> createState() => _ForecastWidgetState();
@@ -90,7 +90,7 @@ class _ForecastWidgetState extends State<ForecastWidget> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withAlpha(25),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -121,7 +121,7 @@ class _ForecastWidgetState extends State<ForecastWidget> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withAlpha(25),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),

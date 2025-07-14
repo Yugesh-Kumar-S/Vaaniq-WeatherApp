@@ -58,6 +58,6 @@ class ForecastItem {
   }
 
   String get formattedDateTime {
-    return '$formattedDate ${formattedTime}';
+    return '$formattedDate $formattedTime';
   }
 }

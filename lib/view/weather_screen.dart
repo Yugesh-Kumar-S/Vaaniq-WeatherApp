@@ -72,18 +72,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
 
   Widget _buildFloatingActionButton(WeatherProvider weatherProvider) {
-    final isDayTime =
-        weatherProvider.currentWeather != null
-            ? WeatherUtils.isDayTime(
-              weatherProvider.currentWeather!.timestamp,
-              weatherProvider.currentWeather!.sunrise,
-              weatherProvider.currentWeather!.sunset,
-            )
-            : true;
-
-    final theme = WeatherUtils.getWeatherTheme(isDayTime);
-    final textColor = theme.textTheme.headlineLarge!.color!;
-
     return FloatingActionButton(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
       onPressed:
@@ -106,7 +94,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 // If location is enabled and permissions are granted
                 weatherProvider.refreshCurrentWeather();
               },
-      backgroundColor: textColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       child: const Icon(Icons.refresh, color: Colors.deepOrange),
     );
   }
