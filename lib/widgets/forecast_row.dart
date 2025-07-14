@@ -5,8 +5,11 @@ class ForecastRow extends StatelessWidget {
   final ForecastItem forecastItem;
   final bool isLast;
 
-  const ForecastRow({Key? key, required this.forecastItem, this.isLast = false})
-    : super(key: key);
+  const ForecastRow({
+    super.key,
+    required this.forecastItem,
+    this.isLast = false,
+  });
 
   @override
   Widget build(BuildContext context) {
