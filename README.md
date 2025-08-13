@@ -1,4 +1,4 @@
-# 🌤️ Vaaniq – Cross‑Platform Weather App
+# 🌤️ [Vaaniq – Cross‑Platform Weather App](https://yugesh-kumar-s.github.io/Vaaniq-WeatherApp/)
 
 ### 📽️ Video Demo  
 - 📱 [Watch Mobile Demo](https://youtube.com/shorts/Ftg8XbOfd8M)
