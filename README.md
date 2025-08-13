@@ -4,6 +4,9 @@
 - 📱 [Watch Mobile Demo](https://youtube.com/shorts/Ftg8XbOfd8M)
 - 🖥️ [Watch Windows Demo](https://youtu.be/XMABZrYYKbs)
 
+<img src="https://github.com/user-attachments/assets/156f5e0b-2241-4e8f-8b34-42f1860a32f2" width="300">
+<img src="https://github.com/user-attachments/assets/37d9a7fa-8f4c-41a9-9f85-38059daa6a58" width="300">
+
 ---
 
 ## Description
