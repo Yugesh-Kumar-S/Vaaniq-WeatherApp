@@ -5,7 +5,7 @@ class AppTheme {
     brightness: Brightness.light,
     useMaterial3: true,
     scaffoldBackgroundColor: Colors.grey[400],
-    bottomAppBarTheme: BottomAppBarTheme(color: Colors.white),
+    bottomAppBarTheme: BottomAppBarThemeData(color: Colors.white),
     textTheme: TextTheme(labelLarge: TextStyle(color: Colors.white)),
   );
 
@@ -13,7 +13,7 @@ class AppTheme {
     brightness: Brightness.dark,
     useMaterial3: true,
     scaffoldBackgroundColor: Colors.grey[800],
-    bottomAppBarTheme: BottomAppBarTheme(color: Colors.black),
+    bottomAppBarTheme: BottomAppBarThemeData(color: Colors.black),
     textTheme: TextTheme(labelLarge: TextStyle(color: Colors.black)),
   );
 }

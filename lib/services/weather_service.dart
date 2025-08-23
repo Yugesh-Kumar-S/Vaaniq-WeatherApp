@@ -65,15 +65,12 @@ class WeatherService {
   }
 
   Future<Position> _getCurrentPosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       throw WeatherException('Location services are disabled');
     }
 
-    permission = await Geolocator.checkPermission();
+    LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
@@ -86,9 +83,19 @@ class WeatherService {
     }
 
     try {
+      LocationSettings locationSettings = const LocationSettings(
+        accuracy: LocationAccuracy.high,
+      );
+
       return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 10),
+        locationSettings: locationSettings,
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout:
+            () =>
+                throw WeatherException(
+                  'Failed to get current location: Timeout',
+                ),
       );
     } catch (e) {
       throw WeatherException('Failed to get current location: ${e.toString()}');
